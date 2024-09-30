@@ -1,0 +1,101 @@
+Select emp1.empid,emp1.emp_name,emp2.salary,emp3.contactno from emp1 
+INNER JOIN emp2 on emp1.empid=emp2.empid INNER JOIN emp3 on
+emp1.empid = emp3.empid
+
+C:\Users\DTP394\Documents\1.py
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'validations_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+    }
+}
+---------------------Search Filter ----------------------
+Select emp1.empid,emp1.emp_name,emp2.salary,emp3.contactno from emp1 
+INNER JOIN emp2 on emp1.empid=emp2.empid INNER JOIN emp3 on
+emp1.empid = emp3.empid 
+
+# models.py
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100)
+    publication_date = models.DateField()
+
+    def __str__(self):
+        return self.title
+
+
+from django.contrib import admin
+from .models import Book
+# Register your models here.
+admin.site.register(Book)
+
+
+
+# forms.py
+from django import forms
+
+class BookSearchForm(forms.Form):
+    query = forms.CharField(label='Search for a book', max_length=100, required=False)
+
+
+
+# views.py
+from django.shortcuts import render
+from .models import Book
+from .forms import BookSearchForm
+
+def book_search(request):
+    form = BookSearchForm(request.GET or None)
+    books = Book.objects.all() 
+    if form.is_valid():
+        query = form.cleaned_data.get('query')
+        if query:
+           
+            books = books.filter(title__ite=query) | books.filter(author__ite=query)
+
+    context = {
+        'form': form,
+        'books': books
+    }
+    return render(request, 'book_search.html', context)
+
+
+
+<!-- templates/book_search.html -->
+<form method="get" action="">
+    {{ form.as_p }}
+    <button type="submit">Search</button>
+</form>
+
+<h2>Search Results</h2>
+<ul>
+    {% for book in books %}
+        <li>{{ book.title }} by {{ book.author }} ({{ book.publication_date }})</li>
+    {% empty %}
+        <li>No results found</li>
+    {% endfor %}
+</ul>
+
+
+
+-----
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'sms_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+    }
+}
+
+border-style:dotted
